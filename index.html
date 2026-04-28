@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Watering Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: #2e7d32;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #558b2f;
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: #388e3c;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #c8e6c9;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #444;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #c8e6c9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #66bb6a;
+            box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        button {
+            background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 160, 71, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .plant-info {
+            background: #f1f8e9;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .plant-info.visible {
+            display: block;
+        }
+
+        .plant-info h3 {
+            color: #33691e;
+            margin-bottom: 10px;
+        }
+
+        .plant-info p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.visible {
+            display: block;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-box .amount {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #2e7d32;
+        }
+
+        .result-box .unit {
+            font-size: 1.2rem;
+            color: #558b2f;
+        }
+
+        .result-box .label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .schedule {
+            margin-top: 20px;
+        }
+
+        .schedule-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #fafafa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #66bb6a;
+        }
+
+        .schedule-item .day {
+            font-weight: 600;
+            color: #2e7d32;
+            min-width: 120px;
+        }
+
+        .schedule-item .action {
+            color: #555;
+            flex: 1;
+        }
+
+        .schedule-item .time {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .tips {
+            margin-top: 20px;
+        }
+
+        .tip {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid #e8f5e9;
+        }
+
+        .tip:last-child {
+            border-bottom: none;
+        }
+
+        .tip-icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+
+        .tip-text {
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .plant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .plant-chip {
+            background: #e8f5e9;
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #2e7d32;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .plant-chip:hover {
+            background: #c8e6c9;
+            transform: scale(1.05);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌱 Plant Watering Calculator</h1>
+            <p>Calculate the perfect watering schedule for your plants</p>
+        </header>
+
+        <!-- Calculator Card -->
+        <div class="card">
+            <h2>🧮 Calculate Watering Needs</h2>
+            
+            <div class="form-group">
+                <label for="plant">Select Your Plant</label>
+                <select id="plant">
+                    <option value="">-- Choose a plant --</option>
+                </select>
+            </div>
+
+            <div id="plantInfo" class="plant-info">
+                <h3 id="plantName"></h3>
+                <p id="plantDescription"></p>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="potSize">Pot Diameter (inches)</label>
+                    <input type="number" id="potSize" min="2" max="24" value="6" step="1">
+                </div>
+                <div class="form-group">
+                    <label for="season">Current Season</label>
+                    <select id="season">
+                        <option value="spring">Spring</option>
+                        <option value="summer">Summer</option>
+                        <option value="fall">Fall</option>
+                        <option value="winter">Winter</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="light">Light Conditions</label>
+                    <select id="light">
+                        <option value="low">Low Light (indirect/shade)</option>
+                        <option value="medium" selected>Medium Light (bright indirect)</option>
+                        <option value="high">High Light (direct sun)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="humidity">Indoor Humidity</label>
+                    <select id="humidity">
+                        <option value="low">Low (dry/heated rooms)</option>
+                        <option value="medium" selected>Medium (typical home)</option>
+                        <option value="high">High (bathroom/humidifier)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="calculateWatering()">Calculate Watering Schedule</button>
+        </div>
+
+        <!-- Results Card -->
+        <div id="results" class="card results">
+            <h2>💧 Your Watering Plan</h2>
+            
+            <div class="result-box">
+                <div class="amount" id="waterAmount">0</div>
+                <div class="unit">ml per watering</div>
+                <div class="label">(<span id="waterOunces">0</span> oz / <span id="waterCups">0</span> cups)</div>
+            </div>
+
+            <div class="result-box">
+                <div class="amount" id="frequency">Every 7 days</div>
+                <div class="label" id="frequencyNote">Adjust based on soil moisture</div>
+            </div>
+
+            <div class="schedule">
+                <h3>📅 Weekly Schedule</h3>
+                <div id="scheduleList"></div>
+            </div>
+
+            <div class="tips">
+                <h3>💡 Care Tips</h3>
+                <div id="tipsList"></div>
+            </div>
+        </div>
+
+        <!-- Plant Database Card -->
+        <div class="card">
+            <h2>📚 Plant Database</h2>
+            <p>Click any plant to auto-select it in the calculator above.</p>
+            <div id="plantGrid" class="plant-grid"></div>
+        </div>
+
+        <footer>
+            <p>Remember: These are guidelines. Always check soil moisture before watering!</p>
+        </footer>
+    </div>
+
+    <script>
+        // ============================================
+        // PLANT DATABASE
+        // ============================================
+        const plantDatabase = {
+            // Low water needs (drought-tolerant)
+            "snake-plant": {
+                name: "Snake Plant",
+                scientificName: "Sansevieria trifasciata",
+                category: "succulent",
+                baseWaterNeed: 0.3, // relative scale 0-1
+                frequencyDays: 14,
+                description: "Extremely drought-tolerant. Let soil dry completely between waterings. Tolerates low light and neglect.",
+                tips: [
+                    "Water only when soil is completely dry",
+                    "Reduce watering significantly in winter",
+                    "Avoid getting water in the leaf rosettes"
+                ]
+            },
+            "succulent": {
+                name: "Succulent (General)",
+                scientificName: "Various species",
+                category: "succulent",
+                baseWaterNeed: 0.25,
+                frequencyDays: 14,
+                description: "Store water in leaves. Need well-draining soil and infrequent deep watering.",
+                tips: [
+                    "Use the 'soak and dry' method",
+                    "Ensure pot has drainage holes",
+                    "Water less in winter dormancy"
+                ]
+            },
+            "cactus": {
+                name: "Cactus",
+                scientificName: "Cactaceae family",
+                category: "succulent",
+                baseWaterNeed: 0.2,
+                frequencyDays: 21,
+                description: "Desert plants that store water. Very drought-tolerant, prone to root rot if overwatered.",
+                tips: [
+                    "Water thoroughly but infrequently",
+                    "Almost no water needed in winter",
+                    "Use cactus-specific soil mix"
+                ]
+            },
+            "aloe-vera": {
+                name: "Aloe Vera",
+                scientificName: "Aloe barbadensis",
+                category: "succulent",
+                baseWaterNeed: 0.3,
+                frequencyDays: 14,
+                description: "Succulent with medicinal properties. Prefers to dry out between waterings.",
+                tips: [
+                    "Let soil dry 1-2 inches deep before watering",
+                    "Reduce watering in winter by half",
+                    "Avoid water sitting in rosette"
+                ]
+            },
+            "zz-plant": {
+                name: "ZZ Plant",
+                scientificName: "Zamioculcas zamiifolia",
+                category: "low-water",
+                baseWaterNeed: 0.35,
+                frequencyDays: 14,
+                description: "Stores water in rhizomes. Extremely low maintenance and tolerates low light.",
+                tips: [
+                    "Better to underwater than overwater",
+                    "Yellow leaves often indicate overwatering",
+                    "Can survive weeks without water"
+                ]
+            },
+
+            // Medium water needs
+            "pothos": {
+                name: "Pothos",
+                scientificName: "Epipremnum aureum",
+                category: "tropical",
+                baseWaterNeed: 0.5,
+                frequencyDays: 7,
+                description: "Versatile trailing plant. Drooping leaves signal thirst. Very forgiving of irregular watering.",
+                tips: [
+                    "Water when top inch of soil is dry",
+                    "Leaves will droop when thirsty",
+                    "Tolerates various light conditions"
+                ]
+            },
+            "spider-plant": {
+                name: "Spider Plant",
+                scientificName: "Chlorophytum comosum",
+                category: "tropical",
+                baseWaterNeed: 0.5,
+                frequencyDays: 7,
+                description: "Adaptable plant with arching leaves. Brown tips may indicate tap water sensitivity.",
+                tips: [
+                    "Keep soil lightly moist",
+                    "Use filtered water to prevent brown tips",
+                    "Produces baby plants (pups) when happy"
+                ]
+            },
+            "philodendron": {
+                name: "Philodendron",
+                scientificName: "Philodendron spp.",
+                category: "tropical",
+                baseWaterNeed: 0.5,
+                frequencyDays: 7,
+                description: "Tropical plant with heart-shaped leaves. Prefers consistent moisture without being soggy.",
+                tips: [
+                    "Water when top inch feels dry",
+                    "Yellow leaves may mean overwatering",
+                    "Enjoys humidity"
+                ]
+            },
+            "rubber-plant": {
+                name: "Rubber Plant",
+                scientificName: "Ficus elastica",
+                category: "tropical",
+                baseWaterNeed: 0.45,
+                frequencyDays: 10,
+                description: "Bold, glossy leaves. Likes to dry out slightly between waterings.",
+                tips: [
+                    "Water when top 2 inches are dry",
+                    "Wipe leaves to keep them glossy",
+                    "Reduce watering in winter"
+                ]
+            },
+            "dracaena": {
+                name: "Dracaena",
+                scientificName: "Dracaena spp.",
+                category: "tropical",
+                baseWaterNeed: 0.4,
+                frequencyDays: 10,
+                description: "Architectural plant with sword-like leaves. Sensitive to fluoride in tap water.",
+                tips: [
+                    "Let soil dry between waterings",
+                    "Use distilled or filtered water",
+                    "Brown tips are often from tap water chemicals"
+                ]
+            },
+            "peace-lily": {
+                name: "Peace Lily",
+                scientificName: "Spathiphyllum",
+                category: "tropical",
+                baseWaterNeed: 0.6,
+                frequencyDays: 7,
+                description: "Elegant flowering plant. Dramatically droops when thirsty, recovers quickly after watering.",
+                tips: [
+                    "Water when leaves start to droop slightly",
+                    "Keep soil consistently moist",
+                    "Loves humidity and indirect light"
+                ]
+            },
+            "monstera": {
+                name: "Monstera",
+                scientificName: "Monstera deliciosa",
+                category: "tropical",
+                baseWaterNeed: 0.55,
+                frequencyDays: 7,
+                description: "Popular plant with split leaves. Likes consistent moisture and climbing support.",
+                tips: [
+                    "Water when top 2 inches are dry",
+                    "Provide a moss pole for climbing",
+                    "Mist leaves occasionally for humidity"
+                ]
+            },
+
+            // Higher water needs
+            "fern": {
+                name: "Fern (Boston)",
+                scientificName: "Nephrolepis exaltata",
+                category: "high-water",
+                baseWaterNeed: 0.75,
+                frequencyDays: 5,
+                description: "Loves humidity and consistent moisture. Never let soil dry out completely.",
+                tips: [
+                    "Keep soil consistently moist",
+                    "Mist frequently or use a humidifier",
+                    "Avoid direct sunlight"
+                ]
+            },
+            "calathea": {
+                name: "Calathea",
+                scientificName: "Calathea spp.",
+                category: "high-water",
+                baseWaterNeed: 0.7,
+                frequencyDays: 5,
+                description: "Stunning patterned leaves. Sensitive to water quality and requires high humidity.",
+                tips: [
+                    "Keep soil evenly moist, not soggy",
+                    "Use filtered or distilled water only",
+                    "Requires high humidity (60%+)"
+                ]
+            },
+            "fiddle-leaf-fig": {
+                name: "Fiddle Leaf Fig",
+                scientificName: "Ficus lyrata",
+                category: "tropical",
+                baseWaterNeed: 0.55,
+                frequencyDays: 10,
+                description: "Trendy plant with large, violin-shaped leaves. Sensitive to changes in environment.",
+                tips: [
+                    "Water when top 2 inches are dry",
+                    "Keep in a consistent location",
+                    "Wipe leaves monthly to remove dust"
+                ]
+            },
+
+            // Flowering & herbs
+            "orchid": {
+                name: "Orchid (Phalaenopsis)",
+                scientificName: "Phalaenopsis spp.",
+                category: "flowering",
+                baseWaterNeed: 0.4,
+                frequencyDays: 7,
+                description: "Elegant flowering plant. Roots need to dry between waterings. Overwatering is the #1 killer.",
+                tips: [
+                    "Water when roots turn silvery-gray",
+                    "Soak and drain method works best",
+                    "Never let roots sit in water"
+                ]
+            },
+            "african-violet": {
+                name: "African Violet",
+                scientificName: "Saintpaulia ionantha",
+                category: "flowering",
+                baseWaterNeed: 0.55,
+                frequencyDays: 5,
+                description: "Compact flowering plant. Water from the bottom to avoid leaf spots.",
+                tips: [
+                    "Water from the bottom",
+                    "Keep soil lightly moist",
+                    "Avoid getting water on leaves"
+                ]
+            },
+            "basil": {
+                name: "Basil",
+                scientificName: "Ocimum basilicum",
+                category: "herb",
+                baseWaterNeed: 0.65,
+                frequencyDays: 3,
+                description: "Popular culinary herb. Needs consistent moisture and warm conditions.",
+                tips: [
+                    "Keep soil consistently moist",
+                    "Harvest regularly to encourage growth",
+                    "Needs 6+ hours of sunlight"
+                ]
+            },
+            "mint": {
+                name: "Mint",
+                scientificName: "Mentha spp.",
+                category: "herb",
+                baseWaterNeed: 0.65,
+                frequencyDays: 3,
+                description: "Vigorous growing herb. Likes moist soil and can tolerate some shade.",
+                tips: [
+                    "Keep soil consistently moist",
+                    "Grows aggressively—contain in its own pot",
+                    "Harvest often to keep bushy"
+                ]
+            },
+            "rosemary": {
+                name: "Rosemary",
+                scientificName: "Salvia rosmarinus",
+                category: "herb",
+                baseWaterNeed: 0.35,
+                frequencyDays: 10,
+                description: "Mediterranean herb preferring dry conditions. Prone to root rot if overwatered.",
+                tips: [
+                    "Let soil dry between waterings",
+                    "Needs excellent drainage",
+                    "Prefers full sun"
+                ]
+            }
+        };
+
+        // ============================================
+        // CALCULATION FACTORS
+        // ============================================
+        const seasonFactors = {
+            spring: 1.0,
+            summer: 1.4,
+            fall: 0.8,
+            winter: 0.5
+        };
+
+        const lightFactors = {
+            low: 0.7,
+            medium: 1.0,
+            high: 1.3
+        };
+
+        const humidityFactors = {
+            low: 1.3,
+            medium: 1.0,
+            high: 0.8
+        };
+
+        // ============================================
+        // INITIALIZE PAGE
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            populatePlantDropdown();
+            populatePlantGrid();
+            setCurrentSeason();
+            
+            document.getElementById('plant').addEventListener('change', showPlantInfo);
+        });
+
+        function populatePlantDropdown() {
+            const select = document.getElementById('plant');
+            const categories = {
+                'succulent': '🌵 Succulents & Cacti',
+                'low-water': '💪 Low Water Plants',
+                'tropical': '🌿 Tropical Plants',
+                'high-water': '💧 High Water Plants',
+                'flowering': '🌸 Flowering Plants',
+                'herb': '🌿 Herbs'
+            };
+
+            // Group plants by category
+            const grouped = {};
+            for (const [id, plant] of Object.entries(plantDatabase)) {
+                if (!grouped[plant.category]) grouped[plant.category] = [];
+                grouped[plant.category].push({ id, ...plant });
+            }
+
+            // Create optgroups
+            for (const [category, label] of Object.entries(categories)) {
+                if (grouped[category]) {
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = label;
+                    grouped[category].forEach(plant => {
+                        const option = document.createElement('option');
+                        option.value = plant.id;
+                        option.textContent = plant.name;
+                        optgroup.appendChild(option);
+                    });
+                    select.appendChild(optgroup);
+                }
+            }
+        }
+
+        function populatePlantGrid() {
+            const grid = document.getElementById('plantGrid');
+            for (const [id, plant] of Object.entries(plantDatabase)) {
+                const chip = document.createElement('div');
+                chip.className = 'plant-chip';
+                chip.textContent = plant.name;
+                chip.onclick = () => selectPlant(id);
+                grid.appendChild(chip);
+            }
+        }
+
+        function setCurrentSeason() {
+            const month = new Date().getMonth();
+            let season;
+            if (month >= 2 && month <= 4) season = 'spring';
+            else if (month >= 5 && month <= 7) season = 'summer';
+            else if (month >= 8 && month <= 10) season = 'fall';
+            else season = 'winter';
+            document.getElementById('season').value = season;
+        }
+
+        function selectPlant(id) {
+            document.getElementById('plant').value = id;
+            showPlantInfo();
+            document.getElementById('plant').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function showPlantInfo() {
+            const plantId = document.getElementById('plant').value;
+            const infoDiv = document.getElementById('plantInfo');
+            
+            if (plantId && plantDatabase[plantId]) {
+                const plant = plantDatabase[plantId];
+                document.getElementById('plantName').textContent = `${plant.name} (${plant.scientificName})`;
+                document.getElementById('plantDescription').textContent = plant.description;
+                infoDiv.classList.add('visible');
+            } else {
+                infoDiv.classList.remove('visible');
+            }
+        }
+
+        // ============================================
+        // MAIN CALCULATION
+        // ============================================
+        function calculateWatering() {
+            const plantId = document.getElementById('plant').value;
+            const potSize = parseFloat(document.getElementById('potSize').value);
+            const season = document.getElementById('season').value;
+            const light = document.getElementById('light').value;
+            const humidity = document.getElementById('humidity').value;
+
+            if (!plantId) {
+                alert('Please select a plant first!');
+                return;
+            }
+
+            const plant = plantDatabase[plantId];
+
+            // Calculate water amount (ml)
+            // Base formula: pot volume estimation * plant water need * environmental factors
+            const potVolumeMl = Math.PI * Math.pow(potSize * 1.27, 2) * (potSize * 1.5) * 0.5; // rough soil volume
+            const baseWater = potVolumeMl * plant.baseWaterNeed;
+            const adjustedWater = baseWater * seasonFactors[season] * lightFactors[light] * humidityFactors[humidity];
+            const waterAmount = Math.round(adjustedWater);
+
+            // Calculate frequency (days)
+            let baseDays = plant.frequencyDays;
+            let adjustedDays = baseDays / seasonFactors[season];
+            adjustedDays = adjustedDays / lightFactors[light];
+            adjustedDays = adjustedDays * humidityFactors[humidity];
+            const frequencyDays = Math.round(Math.max(2, Math.min(30, adjustedDays)));
+
+            // Update results display
+            document.getElementById('waterAmount').textContent = waterAmount;
+            document.getElementById('waterOunces').textContent = (waterAmount / 29.574).toFixed(1);
+            document.getElementById('waterCups').textContent = (waterAmount / 236.588).toFixed(2);
+            
+            document.getElementById('frequency').textContent = frequencyDays === 1 ? 'Daily' : `Every ${frequencyDays} days`;
+            document.getElementById('frequencyNote').textContent = getFrequencyNote(plant, season);
+
+            // Generate schedule
+            generateSchedule(frequencyDays, waterAmount, plant);
+
+            // Generate tips
+            generateTips(plant, season, light, humidity);
+
+            // Show results
+            document.getElementById('results').classList.add('visible');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function getFrequencyNote(plant, season) {
+            if (season === 'summer') {
+                return 'Check soil more frequently in hot weather';
+            } else if (season === 'winter') {
+                return 'Plants need less water during dormancy';
+            } else if (plant.category === 'succulent') {
+                return 'Always let soil dry completely between waterings';
+            } else {
+                return 'Check soil moisture before each watering';
+            }
+        }
+
+        function generateSchedule(frequencyDays, waterAmount, plant) {
+            const scheduleList = document.getElementById('scheduleList');
+            scheduleList.innerHTML = '';
+
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const today = new Date();
+            
+            // Generate 4 weeks of schedule
+            let nextWatering = new Date(today);
+            const scheduleEntries = [];
+
+            for (let i = 0; i < 28; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                
+                if (i % frequencyDays === 0) {
+                    scheduleEntries.push({
+                        day: days[date.getDay()],
+                        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                        isWatering: true
+                    });
+                }
+            }
+
+            // Show first 5 watering days
+            scheduleEntries.slice(0, 5).forEach((entry, index) => {
+                const item = document.createElement('div');
+                item.className = 'schedule-item';
+                item.innerHTML = `
+                    <span class="day">${entry.day}</span>
+                    <span class="action">💧 Water with ${waterAmount}ml</span>
+                    <span class="time">${entry.date}</span>
+                `;
+                scheduleList.appendChild(item);
+            });
+        }
+
+        function generateTips(plant, season, light, humidity) {
+            const tipsList = document.getElementById('tipsList');
+            tipsList.innerHTML = '';
+
+            const tips = [...plant.tips];
+
+            // Add seasonal tips
+            if (season === 'summer') {
+                tips.push('Check soil moisture more frequently in hot weather');
+            } else if (season === 'winter') {
+                tips.push('Reduce watering frequency as growth slows');
+            }
+
+            // Add environment tips
+            if (humidity === 'low' && plant.category === 'tropical') {
+                tips.push('Consider misting leaves or using a pebble tray to increase humidity');
+            }
+            if (light === 'high' && plant.category !== 'succulent') {
+                tips.push('Watch for leaf scorching in direct sunlight');
+            }
+
+            const icons = ['🌱', '💡', '🌡️', '✨', '📍'];
+            tips.slice(0, 5).forEach((tip, index) => {
+                const tipDiv = document.createElement('div');
+                tipDiv.className = 'tip';
+                tipDiv.innerHTML = `
+                    <span class="tip-icon">${icons[index % icons.length]}</span>
+                    <span class="tip-text">${tip}</span>
+                `;
+                tipsList.appendChild(tipDiv);
+            });
+        }
+    </script>
+</body>
+</html>
